@@ -58,6 +58,12 @@ const makeAst = (id, yOff = 0) => {
   };
 };
 
+// ── Guaranteed-unique ID helper ───────────────────────────────────────────────
+// Date.now() alone collides when called multiple times per millisecond (every
+// 16 ms game-loop tick). This counter makes every call unique.
+let _uid = 0;
+const uid = () => `${Date.now()}_${++_uid}`;
+
 export default function App() {
   // ── State ───────────────────────────────────────────────────────────────
   const [playing,    setPlaying]    = useState(false);
@@ -189,7 +195,7 @@ export default function App() {
     shakeRef.current = SHAKE_F;
     // Debris
     const d = Array.from({ length: 8 }, (_, i) => ({
-      id: Date.now() + i, x: cx, y: cy,
+      id: uid(), x: cx, y: cy,
       angle: (i / 8) * Math.PI * 2, spd: 3 + Math.random() * 3,
       life: 1.0, sz: 4 + Math.random() * 5,
       color: ['#ff6600','#ff3300','#ffaa00','#ff0044'][i % 4],
@@ -291,12 +297,12 @@ export default function App() {
         if (isRapid) {
           // Fire 3 spread bullets during rapid fire
           setBullets(prev => [...prev,
-            { id: now,       x: bx,     y: SHIP_Y - 10, rapid: true },
-            { id: now + 0.1, x: bx - 8, y: SHIP_Y - 4,  rapid: true },
-            { id: now + 0.2, x: bx + 8, y: SHIP_Y - 4,  rapid: true },
+            { id: uid(), x: bx,     y: SHIP_Y - 10, rapid: true },
+            { id: uid(), x: bx - 8, y: SHIP_Y - 4,  rapid: true },
+            { id: uid(), x: bx + 8, y: SHIP_Y - 4,  rapid: true },
           ]);
         } else {
-          setBullets(prev => [...prev, { id: now, x: bx, y: SHIP_Y - 10, rapid: false }]);
+          setBullets(prev => [...prev, { id: uid(), x: bx, y: SHIP_Y - 10, rapid: false }]);
         }
       }
 
@@ -445,7 +451,7 @@ export default function App() {
                   }
                   // Debris
                   const d = Array.from({ length: 5 }, (_, i) => ({
-                    id: Date.now() + i, x: ast.x + ast.sz / 2, y: ast.y + ast.sz / 2,
+                    id: uid(), x: ast.x + ast.sz / 2, y: ast.y + ast.sz / 2,
                     angle: (i / 5) * Math.PI * 2, spd: 2 + Math.random() * 2.5, life: 0.9,
                     sz: 3 + Math.random() * 4, color: ast.type === 'comet' ? '#00d4ff' : '#ff8800',
                   }));
